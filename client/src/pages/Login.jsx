@@ -1,10 +1,14 @@
 import React, { useState } from 'react';
-import { loginUser } from '../api'; // adjust path if needed
+import { useNavigate } from 'react-router-dom';
+import { loginUser } from '../api';
+import { useAuth } from '../contexts/AuthContext';
 
 function Login() {
   const [form, setForm] = useState({ email: '', password: '' });
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState('');
+  const { login } = useAuth();
+  const navigate = useNavigate();
 
   const onChange = (e) => {
     setForm((p) => ({ ...p, [e.target.name]: e.target.value }));
@@ -21,12 +25,11 @@ function Login() {
         password: form.password,
       });
 
-      // ✅ store token + user
-      localStorage.setItem('token', data.token);
-      localStorage.setItem('user', JSON.stringify(data.user));
+      // Store session using auth context
+      login(data.token, data.user);
 
-      // ✅ optional redirect
-      window.location.href = '/'; // or "/dashboard"
+      // Redirect to posts page
+      navigate('/');
     } catch (e) {
       setErr(e.message);
     } finally {
